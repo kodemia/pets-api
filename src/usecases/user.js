@@ -1,3 +1,5 @@
+const jwt = require('jsonwebtoken')
+
 const { model: User } = require('../models/user')
 const bcrypt = require('../lib/bcrypt')
 
@@ -52,10 +54,25 @@ const deleteById = (userId) => User.findByIdAndDelete(userId)
 
 const updateById = (userId, userData) => User.findByIdAndUpdate(userId, userData)
 
+const logIn = async (email, password) => {
+  const user = await User.findOne({ email }).lean()
+  if (!user) throw new Error('Invalid credentials')
+  console.log('user: ', user)
+
+  const isValidPassword = await bcrypt.compare(password, user.password)
+  if (!isValidPassword) throw new Error('Invalid credentials')
+
+  return jwt.sign({ id: user._id }, 'supersecretwordxdxd', { expiresIn: '1d' })
+}
+
+const verifyJwt = token => jwt.verify(token, 'supersecretwordxdxd')
+
 module.exports = {
   signUp,
   getAll,
   getById,
   deleteById,
-  updateById
+  updateById,
+  logIn,
+  verifyJwt
 }

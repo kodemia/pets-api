@@ -2,6 +2,7 @@
 const express = require('express')
 
 const user = require('../usecases/user')
+const auth = require('../middlewares/auth')
 
 const router = express.Router()
 
@@ -28,7 +29,7 @@ router.post('/', async (req, res) => {
   }
 })
 
-router.get('/', async (req, res) => {
+router.get('/', auth, auth, async (req, res) => {
   try {
     const users = await user.getAll()
     res.json({
@@ -49,7 +50,7 @@ router.get('/', async (req, res) => {
   }
 })
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', auth, async (req, res) => {
   try {
     const { id } = req.params
     const foundUser = await user.getById(id)
@@ -71,7 +72,7 @@ router.get('/:id', async (req, res) => {
   }
 })
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', auth, async (req, res) => {
   try {
     const { id } = req.params
     const deletedUser = await user.deleteById(id)
@@ -93,7 +94,7 @@ router.delete('/:id', async (req, res) => {
   }
 })
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', auth, async (req, res) => {
   try {
     const { id } = req.params
     const newUserData = req.body
@@ -111,6 +112,35 @@ router.put('/:id', async (req, res) => {
     res.json({
       success: false,
       message: 'Cannot update user',
+      error: error.message
+    })
+  }
+})
+
+router.post('/auth', async (req, res) => {
+  try {
+    const {
+      password,
+      email
+    } = req.body
+
+    console.log({ password, email })
+
+    const token = await user.logIn(email, password)
+
+    res.json({
+      success: true,
+      message: 'User logged in successfuly',
+      payload: {
+        token
+      }
+    })
+  } catch (error) {
+    console.error('Error: ', error)
+    res.status(401)
+    res.json({
+      success: false,
+      message: 'Wrong user credentials',
       error: error.message
     })
   }
