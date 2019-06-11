@@ -1,7 +1,7 @@
 const express = require('express')
 
 const pet = require('../usecases/pet')
-const auth = require('../usecases/pet')
+const auth = require('../middlewares/auth')
 
 const router = express.Router()
 

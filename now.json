@@ -1,6 +1,7 @@
 {
   "version": 2,
   "name": "pets-api",
+  "alias": "devcharles.dev",
   "builds": [
     {
       "src": "index.js", 
